@@ -10,38 +10,123 @@
     body {
       margin: 0;
       overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #ui {
+      position: fixed;
+      bottom: 30px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 999;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 14px 24px;
+      margin: 6px;
+      border: none;
+      border-radius: 12px;
+      background: #4fc3f7;
+      color: white;
+      font-weight: bold;
+    }
+
+    #iceButtons {
+      display: none;
+    }
+
+    #message {
+      margin-top: 12px;
+      font-size: 20px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px black;
     }
   </style>
 </head>
 
 <body>
 
-<a-scene
-  mindar-image="imageTargetSrc: ./targets.mind;"
-  color-space="sRGB"
-  renderer="colorManagement: true, physicallyCorrectLights"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
->
+  <div id="ui" style="display:none;">
+    <button id="startBtn">START</button>
 
-  <a-assets>
-    <a-asset-item id="penguinModel" src="./assets/penguin.glb"></a-asset-item>
-  </a-assets>
+    <div id="iceButtons">
+      <button onclick="chooseIce(false)">Ice 1</button>
+      <button onclick="chooseIce(true)">Ice 2</button>
+      <button onclick="chooseIce(false)">Ice 3</button>
+    </div>
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <div id="message">Scan the image to meet ICY!</div>
+  </div>
 
-  <a-entity mindar-image-target="targetIndex: 0">
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets.mind;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
 
-    <a-gltf-model
-      src="#penguinModel"
-      position="0 0 0"
-      scale="0.3 0.3 0.3"
-      rotation="90 0 0">
-    </a-gltf-model>
+    <a-assets>
+      <a-asset-item id="penguinModel" src="./assets/penguin.glb"></a-asset-item>
+    </a-assets>
 
-  </a-entity>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-</a-scene>
+    <a-entity mindar-image-target="targetIndex: 0">
+
+      <a-gltf-model
+        id="penguin"
+        src="#penguinModel"
+        position="0 0 0"
+        scale="0.3 0.3 0.3"
+        rotation="90 0 0">
+      </a-gltf-model>
+
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const iceButtons = document.getElementById("iceButtons");
+    const message = document.getElementById("message");
+    const penguin = document.getElementById("penguin");
+
+    startBtn.addEventListener("click", function () {
+      startBtn.style.display = "none";
+      iceButtons.style.display = "block";
+      message.innerText = "Choose the safe ice block!";
+    });
+
+    function chooseIce(isCorrect) {
+      if (isCorrect) {
+        message.innerText = "Great choice! ICY is safe!";
+
+        penguin.setAttribute("animation", {
+          property: "position",
+          to: "0.5 0 0",
+          dur: 1200,
+          easing: "easeInOutQuad"
+        });
+
+      } else {
+        message.innerText = "Oops! This ice is too thin. Try again!";
+      }
+    }
+    const target = document.querySelector("[mindar-image-target]");
+
+target.addEventListener("targetFound", () => {
+  document.getElementById("ui").style.display = "block";
+  message.innerText = "Press START to begin!";
+});
+
+target.addEventListener("targetLost", () => {
+  document.getElementById("ui").style.display = "none";
+});
+  </script>
 
 </body>
 </html>
